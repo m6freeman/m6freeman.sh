@@ -57,12 +57,13 @@ jobs:
 
       - name: Build distributable site resources
         run: |
+          ls
           python -m venv venv
           source venv/bin/activate
           echo "VIRTUAL_ENV=$VIRTUAL_ENV" >> $GITHUB_ENV
           pip3 install --quiet -r requirements.txt
-          python /src/main.py
-          ls /dist
+          python src/main.py
+          ls dist/
           exit 1
 
       - name: Install awslocal and tflocal
