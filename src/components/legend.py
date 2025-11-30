@@ -20,7 +20,7 @@ def build() -> Group:
     legend_table.add_row("$ curl", "-s", "m6freeman.sh/help",
                          "full listing of pages")
     legend_table.add_row(
-        "$ curl", "-s", "m6freeman.sh/resume | less", "the man page")
+        "$ curl", "-s", "m6freeman.sh/resume | less -r", "the man page")
 
     legend_panel: Panel = Panel(
         legend_table,

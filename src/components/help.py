@@ -23,7 +23,7 @@ def build() -> Group:
     help_table.add_row("$ curl", "-s", "m6freeman.sh/pilot",
                        "current employment")
     help_table.add_row(
-        "$ curl", "-s", "m6freeman.sh/resume | less", "the man page")
+        "$ curl", "-s", "m6freeman.sh/resume | less -r", "the man page")
     help_table.add_row("$ curl", "-s", "m6freeman.sh/see_also",
                        "professional references")
     help_table.add_row("$ curl", "-s", "m6freeman.sh/usn",
