@@ -1,0 +1,15 @@
+       .          .           .     .                .       .             
+     .      *           .       .          .                       .       
+             .       .   . *        "Are you sure you want to quit?        
+      ____     .      . .       .      All unsaved progress will be lost." 
+     >>         .        .               .               ~ Nintendo        
+ .  /WWWI; \  .       .    .  ____               .         .     .         
+   /WWWWII; \=====;    .     /WI; \   *    .        /\_             .      
+  /WWWWWII;..      \_  . ___/WI;:. \     .        _/M; \    .   .         .
+ /WWWWWIIIIi;..      \__/WWWIIII:.. \____ .   .  /MMI:  \   * .            
+/WWWWWIIIi;;;:...:   ;\WWWWWWIIIII;.     \     /MMWII;   \    .  .     .   
+WWWWIWIiii;;;.:.. :   ;\WWWWWIII;;;::     \___/MMWIIII;   \              . 
+WWWIIIIiii;;::.... :   ;|WWWWWWII;;::.:      :;IMWIIIII;:   \___     *     
+WWWWWWIIIIIWIIii;;::;..;\WWWWWWIII;;;:::...    ;IMIII;;     ::  \     .    
+WWWWWIIIIIIIIIii;;::.;..;\WWWWWWWWIIIII;;..  :;IMIII;:::     :    \        
+WWWWWWWWWIIIIIIii;;::..;..;\WWWWWWWWIIII;::; :::::::::.....::       \      

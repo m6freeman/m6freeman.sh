@@ -1,0 +1,126 @@
+name: AWS or LocalStack Deployment
+
+on:
+  #push: 
+    #branches: [main]
+  workflow_dispatch:
+
+env:
+  USING_LOCALSTACK: false
+
+jobs:
+
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+
+      - name: Set USING_LOCALSTACK Variable
+        run: |
+          echo "$GITHUB_EVENT_NAME"
+          echo "USING_LOCALSTACK=$([[ $GITHUB_EVENT_NAME == 'workflow_dispatch' ]] && echo "true" || echo "false")" >> $GITHUB_ENV
+          echo "Using Localstack: $USING_LOCALSTACK"
+
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Install Dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y util-linux python3 python3-pip unzip curl gnupg jq
+
+      - name: Load Shared Configuration
+        id: set-config
+        working-directory: config
+        run: |
+          BACKEND_BUCKET=$(jq -r '.infrastructure.backend_bucket' config.json)
+          ENVIRONMENT=$(jq -r '.project.environment' config.json)
+          PROJECT_NAME=$(jq -r '.project.name' config.json)
+          REGION=$(jq -r '.project.region' config.json)
+          echo "BACKEND_BUCKET=$BACKEND_BUCKET" >> $GITHUB_OUTPUT
+          echo "ENVIRONMENT=$ENVIRONMENT" >> $GITHUB_OUTPUT
+          echo "PROJECT_NAME=$PROJECT_NAME" >> $GITHUB_OUTPUT
+          echo "REGION=$REGION" >> $GITHUB_OUTPUT
+
+      - name: Set up AWS CLI
+        env:
+          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          AWS_DEFAULT_REGION: ${{ steps.set-config.outputs.REGION }}
+        run: |
+          curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip"
+          unzip -q awscliv2.zip
+          sudo ./aws/install 
+          aws configure set aws_access_key_id "$AWS_ACCESS_KEY_ID"
+          aws configure set aws_secret_access_key "$AWS_SECRET_ACCESS_KEY"
+          aws configure set default.region "$AWS_DEFAULT_REGION"
+
+      - name: Build distributable site resources
+        run: |
+          python -m venv venv
+          source venv/bin/activate
+          echo "VIRTUAL_ENV=$VIRTUAL_ENV" >> $GITHUB_ENV
+          pip3 install --quiet requirements.txt
+
+      - name: Install awslocal and tflocal
+        if: env.USING_LOCALSTACK == 'true'
+        run: |
+          python -m venv venv
+          source venv/bin/activate
+          pip3 install --quiet awscli-local
+          pip3 install --quiet terraform-local
+          source $VIRTUAL_ENV/bin/activate
+          echo "AWS_COMMAND=awslocal" >> $GITHUB_ENV
+          echo "TERRAFORM_COMMAND=tflocal" >> $GITHUB_ENV
+
+      - name: Set up Terraform
+        uses: hashicorp/setup-terraform@v3
+        with:
+          terraform_version: "1.13.5"   
+
+      - name: Set Terraform Workspace for LocalStack
+        if: env.USING_LOCALSTACK == 'true'
+        run: |
+            echo "TF_WORKSPACE=localstack" >> $GITHUB_ENV
+
+      - name: Initialize Backend Bucket for LocalStack
+        if: env.USING_LOCALSTACK == 'true'
+        env:
+          BACKEND_BUCKET: ${{ steps.set-config.outputs.BACKEND_BUCKET }}
+        working-directory: terraform/backend
+        run: |
+          source $VIRTUAL_ENV/bin/activate
+          if ! $AWS_COMMAND s3 ls s3://$BACKEND_BUCKET; then
+            $TERRAFORM_COMMAND init
+            $TERRAFORM_COMMAND apply -auto-approve
+          fi
+
+      - name: Check for Backend Bucket
+        if: env.USING_LOCALSTACK == 'false'
+        run: |
+          if ! $AWS_COMMAND s3 ls s3://$BACKEND_BUCKET; then
+            echo "External s3 Backend Bucket not found."
+            exit 1
+          fi
+
+      - name: Initalize and Deploy Terraform
+        working-directory: terraform
+        env:
+          BACKEND_BUCKET: ${{ steps.set-config.outputs.BACKEND_BUCKET }}
+          PROJECT_NAME: ${{ steps.set-config.outputs.PROJECT_NAME }}
+          REGION: ${{ steps.set-config.outputs.REGION }}
+          USING_LOCALSTACK: ${{ env.USING_LOCALSTACK }}
+        run: |
+          if [[ $USING_LOCALSTACK == "true" ]]; then
+            source $VIRTUAL_ENV/bin/activate
+          fi
+          echo "$BACKEND_BUCKET"
+          echo "$PROJECT_NAME"
+          echo "$REGION"
+          $TERRAFORM_COMMAND init \
+            -backend-config="bucket=${BACKEND_BUCKET}" \
+            -backend-config="key=${PROJECT_NAME}/terraform.tfstate" \
+            -backend-config="region=${REGION}" \
+            -backend-config="encrypt=false"
+          $TERRAFORM_COMMAND apply -auto-approve
+          $TERRAFORM_COMMAND output website_endpoint
+
