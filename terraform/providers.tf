@@ -7,6 +7,6 @@ provider "aws" {
       sts = local.config.infrastructure.localstack_endpoint
     }
   }
-  skip_credentials_validation = true
-  skip_requesting_account_id  = true
+  skip_credentials_validation = false
+  skip_requesting_account_id  = false
 }
