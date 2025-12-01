@@ -55,6 +55,10 @@ jobs:
           aws configure set aws_secret_access_key "$AWS_SECRET_ACCESS_KEY"
           aws configure set default.region "$AWS_DEFAULT_REGION"
 
+      - name: Validate AWS Credentials
+        run: |
+          aws sts get-caller-identity
+
       - name: Build distributable site resources
         run: |
           python -m venv venv
