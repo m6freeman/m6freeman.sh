@@ -17,9 +17,9 @@ curl -s m6freeman.sh.s3-website-us-east-1.amazonaws.com/resume | less -r
 - `curl`'s `-s` just means `--silent`. `curl`'s progress bar can leave unsightly artifacts, so this is recommended
 - Piping the resume page into `less` or the pager of your choice is recommended in order to start at the top. `less`'s `-r` renders the ANSI characters
 
+![welcome page](./img.png)
+
 ## Shout Outs
 
  - Heavily inspired by [YSAP](https://www.youtube.com/watch?v=ddG_thnxt9A)'s website `ysap.sh`. I thought this was such a clever idea and figured I could do that but within my own tech stack.
-
-![welcome page](./img.png)
 
