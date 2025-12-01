@@ -8,11 +8,12 @@ from rich.table import Table
 def build() -> Group:
 
     legend_table: Table = Table(
+        collapse_padding=True,
         border_style="none", box=None, show_header=False, expand=True)
-    legend_table.add_column("", style="green", justify="left", width=4)
+    legend_table.add_column("", style="green", justify="left", width=2)
     legend_table.add_column("", style="dim", justify="left")
-    legend_table.add_column()
-    legend_table.add_column("", style="dim italic", justify="right")
+    legend_table.add_column("", width=16)
+    legend_table.add_column("", style="dim italic", justify="right", width=10)
     legend_table.add_row("$ curl", "-s", "m6freeman.sh",
                          Text("\u25B6  you are here \u25C0", "cyan bold"))
     legend_table.add_row(
