@@ -63,17 +63,13 @@ jobs:
           pip3 install --quiet -r requirements.txt
           mkdir dist
           python src/main.py
-          ls dist/
-          exit 1
 
       - name: Install awslocal and tflocal
         if: env.USING_LOCALSTACK == 'true'
         run: |
-          python -m venv venv
-          source venv/bin/activate
+          source $VIRTUAL_ENV/bin/activate
           pip3 install --quiet awscli-local
           pip3 install --quiet terraform-local
-          source $VIRTUAL_ENV/bin/activate
           echo "AWS_COMMAND=awslocal" >> $GITHUB_ENV
           echo "TERRAFORM_COMMAND=tflocal" >> $GITHUB_ENV
 
