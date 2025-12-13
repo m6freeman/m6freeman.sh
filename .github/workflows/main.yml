@@ -106,7 +106,7 @@ jobs:
         run: |
           echo "$BACKEND_BUCKET"
           aws s3 ls
-          $AWS_COMMAND s3 ls s3://"$BACKEND_BUCKET" || {
+          aws s3 ls s3://"$BACKEND_BUCKET" || {
             echo "External s3 Backend Bucket not found."
             exit 1
           }
