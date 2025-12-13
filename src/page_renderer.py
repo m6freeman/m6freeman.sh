@@ -7,7 +7,7 @@ from resources import consts
 
 def build(content_panel: Panel, theme: Theme, output_path: str) -> None:
 
-    console: Console = Console(theme=theme)
+    console: Console = Console(force_terminal=True, theme=theme)
 
     wrapper: Panel = Panel(
         content_panel,
