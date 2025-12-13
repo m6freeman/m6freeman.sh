@@ -37,7 +37,6 @@ jobs:
           ENVIRONMENT=$(jq -r '.project.environment' config.json)
           PROJECT_NAME=$(jq -r '.project.name' config.json)
           REGION=$(jq -r '.project.region' config.json)
-          echo "$BACKEND_BUCKET"
           echo "BACKEND_BUCKET=$BACKEND_BUCKET" >> $GITHUB_OUTPUT
           echo "ENVIRONMENT=$ENVIRONMENT" >> $GITHUB_OUTPUT
           echo "PROJECT_NAME=$PROJECT_NAME" >> $GITHUB_OUTPUT
@@ -55,7 +54,6 @@ jobs:
           aws configure set aws_access_key_id "$AWS_ACCESS_KEY_ID"
           aws configure set aws_secret_access_key "$AWS_SECRET_ACCESS_KEY"
           aws configure set default.region "$AWS_DEFAULT_REGION"
-          aws configure list
 
       - name: Validate AWS Credentials
         run: |
@@ -95,7 +93,9 @@ jobs:
           BACKEND_BUCKET: ${{ steps.set-config.outputs.BACKEND_BUCKET }}
         working-directory: terraform/backend
         run: |
+          echo "$BACKEND_BUCKET"
           source $VIRTUAL_ENV/bin/activate
+          aws s3 ls
           if ! $AWS_COMMAND s3 ls s3://$BACKEND_BUCKET; then
             $TERRAFORM_COMMAND init
             $TERRAFORM_COMMAND apply -auto-approve
