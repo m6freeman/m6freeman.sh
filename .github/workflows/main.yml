@@ -106,10 +106,10 @@ jobs:
         run: |
           echo "$BACKEND_BUCKET"
           aws s3 ls
-          if ! $AWS_COMMAND s3 ls s3://$BACKEND_BUCKET; then
+          $AWS_COMMAND s3 ls s3://$BACKEND_BUCKET || {
             echo "External s3 Backend Bucket not found."
             exit 1
-          fi
+          }
 
       - name: Initalize and Deploy Terraform
         working-directory: terraform
