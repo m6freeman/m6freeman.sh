@@ -122,9 +122,8 @@ jobs:
           if [[ $USING_LOCALSTACK == "true" ]]; then
             source $VIRTUAL_ENV/bin/activate
           fi
-          echo "$BACKEND_BUCKET"
-          echo "$PROJECT_NAME"
-          echo "$REGION"
+          echo "$TERRAFORM_COMMAND"
+          echo "$VIRTUAL_ENV"
           $TERRAFORM_COMMAND init \
             -backend-config="bucket=${BACKEND_BUCKET}" \
             -backend-config="key=${PROJECT_NAME}/terraform.tfstate" \
