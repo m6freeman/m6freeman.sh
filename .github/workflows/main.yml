@@ -67,7 +67,7 @@ jobs:
       - name: Build distributable site resources
         env:
           RICH_FORCE_TERMINAL: "1"
-          COLUMNS: "120"  
+          COLUMNS: "86"  
         run: |
           python -m venv venv
           source venv/bin/activate
