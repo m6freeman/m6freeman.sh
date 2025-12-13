@@ -1,5 +1,3 @@
-from components import web_dev
-from components import usn
 from components import about_contacts
 from components import description
 from components import error
@@ -12,6 +10,8 @@ from components import options
 from components import quote
 from components import see_also
 from components import synopsis
+from components import usn
+from components import web_dev
 from rich.console import Group
 from rich.padding import Padding
 from rich.theme import Theme

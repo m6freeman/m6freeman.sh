@@ -32,5 +32,5 @@ def build() -> Group:
     )
 
     return Group(
-        legend_panel
+        legend_panel,
     )
