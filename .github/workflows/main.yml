@@ -65,6 +65,9 @@ jobs:
           $AWS_COMMAND sts get-caller-identity
 
       - name: Build distributable site resources
+        env:
+          RICH_FORCE_TERMINAL: "1"
+          COLUMNS: "120"  
         run: |
           python -m venv venv
           source venv/bin/activate
