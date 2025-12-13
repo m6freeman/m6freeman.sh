@@ -1,5 +1,6 @@
 provider "aws" {
-  region = local.config.project.region
+  allowed_account_ids = ["593793045906"]
+  region              = local.config.project.region
   # dynamic "endpoints" {
   # for_each = terraform.workspace == "localstack" ? [1] : [0]
   # content {
