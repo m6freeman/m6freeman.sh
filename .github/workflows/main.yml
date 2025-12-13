@@ -8,6 +8,8 @@ on:
 
 env:
   USING_LOCALSTACK: false
+  AWS_COMMAND: "aws"
+  TERRAFORM_COMMAND: "terraform"
 
 jobs:
 
@@ -41,14 +43,13 @@ jobs:
           echo "ENVIRONMENT=$ENVIRONMENT" >> $GITHUB_OUTPUT
           echo "PROJECT_NAME=$PROJECT_NAME" >> $GITHUB_OUTPUT
           echo "REGION=$REGION" >> $GITHUB_OUTPUT
-          echo "AWS_COMMAND=aws" >> $GITHUB_OUTPUT
-          echo "TERRAFORM_COMMAND=terraform" >> $GITHUB_OUTPUT
 
       - name: Set up AWS CLI
         env:
           AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
           AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           AWS_DEFAULT_REGION: ${{ steps.set-config.outputs.REGION }}
+          AWS_COMMAND: ${{ env.AWS_COMMAND}}
         run: |
           curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip"
           unzip -q awscliv2.zip
@@ -58,6 +59,8 @@ jobs:
           $AWS_COMMAND configure set default.region "$AWS_DEFAULT_REGION"
 
       - name: Validate AWS Credentials
+        env:
+          AWS_COMMAND: ${{ env.AWS_COMMAND}}
         run: |
           $AWS_COMMAND sts get-caller-identity
 
@@ -93,18 +96,21 @@ jobs:
         if: env.USING_LOCALSTACK == 'true'
         env:
           BACKEND_BUCKET: ${{ steps.set-config.outputs.BACKEND_BUCKET }}
+          AWS_COMMAND: ${{ env.AWS_COMMAND}}
+          TERRAFORM_COMMAND: ${{ env.TERRAFORM_COMMAND }}
         working-directory: terraform/backend
         run: |
           source $VIRTUAL_ENV/bin/activate
-          if ! $AWS_COMMAND s3 ls s3://$BACKEND_BUCKET; then
+          $AWS_COMMAND s3 ls s3://$BACKEND_BUCKET || {
             $TERRAFORM_COMMAND init
             $TERRAFORM_COMMAND apply -auto-approve
-          fi
+          }
 
       - name: Check for Backend Bucket
         if: env.USING_LOCALSTACK == 'false'
         env:
           BACKEND_BUCKET: ${{ steps.set-config.outputs.BACKEND_BUCKET }}
+          AWS_COMMAND: ${{ env.AWS_COMMAND}}
         run: |
           echo "$BACKEND_BUCKET"
           $AWS_COMMAND s3 ls s3://"$BACKEND_BUCKET" || {
@@ -119,6 +125,7 @@ jobs:
           PROJECT_NAME: ${{ steps.set-config.outputs.PROJECT_NAME }}
           REGION: ${{ steps.set-config.outputs.REGION }}
           USING_LOCALSTACK: ${{ env.USING_LOCALSTACK }}
+          TERRAFORM_COMMAND: ${{ env.TERRAFORM_COMMAND }}
         run: |
           if [[ $USING_LOCALSTACK == "true" ]]; then
             source $VIRTUAL_ENV/bin/activate
