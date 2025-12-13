@@ -93,9 +93,7 @@ jobs:
           BACKEND_BUCKET: ${{ steps.set-config.outputs.BACKEND_BUCKET }}
         working-directory: terraform/backend
         run: |
-          echo "$BACKEND_BUCKET"
           source $VIRTUAL_ENV/bin/activate
-          aws s3 ls
           if ! $AWS_COMMAND s3 ls s3://$BACKEND_BUCKET; then
             $TERRAFORM_COMMAND init
             $TERRAFORM_COMMAND apply -auto-approve
@@ -103,7 +101,11 @@ jobs:
 
       - name: Check for Backend Bucket
         if: env.USING_LOCALSTACK == 'false'
+        env:
+          BACKEND_BUCKET: ${{ steps.set-config.outputs.BACKEND_BUCKET }}
         run: |
+          echo "$BACKEND_BUCKET"
+          aws s3 ls
           if ! $AWS_COMMAND s3 ls s3://$BACKEND_BUCKET; then
             echo "External s3 Backend Bucket not found."
             exit 1
