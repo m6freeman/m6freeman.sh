@@ -41,6 +41,8 @@ jobs:
           echo "ENVIRONMENT=$ENVIRONMENT" >> $GITHUB_OUTPUT
           echo "PROJECT_NAME=$PROJECT_NAME" >> $GITHUB_OUTPUT
           echo "REGION=$REGION" >> $GITHUB_OUTPUT
+          echo "AWS_COMMAND=aws" >> $GITHUB_OUTPUT
+          echo "TERRAFORM_COMMAND=terraform" >> $GITHUB_OUTPUT
 
       - name: Set up AWS CLI
         env:
@@ -51,13 +53,13 @@ jobs:
           curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip"
           unzip -q awscliv2.zip
           sudo ./aws/install --update
-          aws configure set aws_access_key_id "$AWS_ACCESS_KEY_ID"
-          aws configure set aws_secret_access_key "$AWS_SECRET_ACCESS_KEY"
-          aws configure set default.region "$AWS_DEFAULT_REGION"
+          $AWS_COMMAND configure set aws_access_key_id "$AWS_ACCESS_KEY_ID"
+          $AWS_COMMAND configure set aws_secret_access_key "$AWS_SECRET_ACCESS_KEY"
+          $AWS_COMMAND configure set default.region "$AWS_DEFAULT_REGION"
 
       - name: Validate AWS Credentials
         run: |
-          aws sts get-caller-identity
+          $AWS_COMMAND sts get-caller-identity
 
       - name: Build distributable site resources
         run: |
@@ -105,8 +107,7 @@ jobs:
           BACKEND_BUCKET: ${{ steps.set-config.outputs.BACKEND_BUCKET }}
         run: |
           echo "$BACKEND_BUCKET"
-          aws s3 ls
-          aws s3 ls s3://"$BACKEND_BUCKET" || {
+          $AWS_COMMAND s3 ls s3://"$BACKEND_BUCKET" || {
             echo "External s3 Backend Bucket not found."
             exit 1
           }
@@ -122,8 +123,6 @@ jobs:
           if [[ $USING_LOCALSTACK == "true" ]]; then
             source $VIRTUAL_ENV/bin/activate
           fi
-          echo "$TERRAFORM_COMMAND"
-          echo "$VIRTUAL_ENV"
           $TERRAFORM_COMMAND init \
             -backend-config="bucket=${BACKEND_BUCKET}" \
             -backend-config="key=${PROJECT_NAME}/terraform.tfstate" \
