@@ -12,6 +12,7 @@ resource "aws_cloudfront_origin_access_control" "website_origin_access_control" 
 }
 
 resource "aws_cloudfront_distribution" "s3_distribution" {
+  depends_on = [aws_cloudfront_origin_access_control.website_origin_access_control]
   origin {
     domain_name              = aws_s3_bucket.website_bucket.bucket_regional_domain_name
     origin_access_control_id = aws_cloudfront_origin_access_control.website_origin_access_control.id
@@ -61,7 +62,7 @@ resource "aws_cloudfront_distribution" "s3_distribution" {
 
 resource "aws_acm_certificate" "cert" {
   provider          = aws
-  domain_name       = "*.${local.config.infrastructure.s3.website}"
+  domain_name       = local.config.infrastructure.s3.website
   validation_method = "DNS"
 
   lifecycle {
