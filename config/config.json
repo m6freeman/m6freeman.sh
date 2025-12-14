@@ -6,6 +6,9 @@
   },
   "infrastructure": {
     "localstack_endpoint": "http:localstack:4566",
-    "backend_bucket": "m6freeman.sh-terraform-state"
+    "s3": {
+      "backend": "m6freeman.sh-terraform-state",
+      "website": "m6freeman.sh"
+    }
   }
 }

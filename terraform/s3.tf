@@ -1,30 +1,25 @@
 
 resource "aws_s3_bucket" "website_bucket" {
-  bucket        = "m6freeman.sh"
+  bucket        = local.config.infrastructure.s3.website
   force_destroy = true
 }
 
 resource "aws_s3_bucket_public_access_block" "website_bucket" {
   bucket = aws_s3_bucket.website_bucket.id
 
-  block_public_acls       = false
-  block_public_policy     = false
-  ignore_public_acls      = false
-  restrict_public_buckets = false
+  block_public_acls       = true
+  block_public_policy     = true
+  ignore_public_acls      = true
+  restrict_public_buckets = true
 }
 
-resource "aws_s3_bucket_ownership_controls" "website_bucket" {
-  bucket = aws_s3_bucket.website_bucket.id
-  rule {
-    object_ownership = "BucketOwnerPreferred"
-  }
-}
-
-resource "aws_s3_bucket_acl" "website_bucket" {
-  depends_on = [aws_s3_bucket_ownership_controls.website_bucket]
-
-  bucket = aws_s3_bucket.website_bucket.id
-  acl    = "public-read"
+resource "aws_s3_object" "upload_object" {
+  bucket       = aws_s3_bucket.website_bucket.id
+  key          = each.value
+  source       = "../dist/${each.value}"
+  etag         = filemd5("../dist/${each.value}")
+  for_each     = fileset("../dist/", "*")
+  content_type = "text/html"
 }
 
 resource "aws_s3_bucket_website_configuration" "website_bucket" {
@@ -47,21 +42,17 @@ resource "aws_s3_bucket_policy" "website_bucket" {
     Version = "2012-10-17"
     Statement = [
       {
-        Sid       = "PublicReadGetObject"
+        Sid       = "CloudfrontPublicReadGetObject"
         Effect    = "Allow"
-        Principal = "*"
+        Principal = { "AWS" : "cloudfront.amazonaws.com" }
         Action    = "s3:GetObject"
         Resource  = "${aws_s3_bucket.website_bucket.arn}/*"
+        Condition = {
+          StringEquals = {
+            "AWS:SourceArn" : aws_cloudfront_distribution.s3_distribution.arn
+          }
+        }
       }
     ]
   })
-}
-
-resource "aws_s3_object" "upload_object" {
-  for_each     = fileset("../dist/", "*")
-  bucket       = aws_s3_bucket.website_bucket.id
-  key          = each.value
-  source       = "../dist/${each.value}"
-  etag         = filemd5("../dist/${each.value}")
-  content_type = "text/html"
 }

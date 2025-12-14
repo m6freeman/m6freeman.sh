@@ -1,5 +1,5 @@
 resource "aws_s3_bucket" "terraform_state" {
-  bucket        = local.config.infrastructure.backend_bucket
+  bucket        = local.config.infrastructure.s3.backend
   force_destroy = true
 }
 
