@@ -44,7 +44,7 @@ resource "aws_s3_bucket_policy" "website_bucket" {
       {
         Sid       = "CloudfrontPublicReadGetObject"
         Effect    = "Allow"
-        Principal = { "AWS" : "cloudfront.amazonaws.com" }
+        Principal = { "Service" : "cloudfront.amazonaws.com" }
         Action    = "s3:GetObject"
         Resource  = "${aws_s3_bucket.website_bucket.arn}/*"
         Condition = {
