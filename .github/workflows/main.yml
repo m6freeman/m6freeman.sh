@@ -35,7 +35,7 @@ jobs:
         id: set-config
         working-directory: config
         run: |
-          BACKEND_BUCKET=$(jq -r '.infrastructure.backend_bucket' config.json)
+          BACKEND_BUCKET=$(jq -r '.infrastructure.s3.backend' config.json)
           ENVIRONMENT=$(jq -r '.project.environment' config.json)
           PROJECT_NAME=$(jq -r '.project.name' config.json)
           REGION=$(jq -r '.project.region' config.json)
