@@ -138,5 +138,6 @@ jobs:
             -backend-config="key=${PROJECT_NAME}/terraform.tfstate" \
             -backend-config="region=${REGION}" \
             -backend-config="encrypt=false"
-          $TERRAFORM_COMMAND apply -auto-approve
+          # $TERRAFORM_COMMAND apply -auto-approve
+          terraform destroy -auto-approve
 

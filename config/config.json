@@ -1,6 +1,6 @@
 {
   "project": {
-    "name": "m6freeman.sh",
+    "name": "localstack-template",
     "environment": "dev",
     "region": "us-east-1"
   },
