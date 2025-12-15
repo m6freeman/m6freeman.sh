@@ -1,8 +1,3 @@
-
-resource "aws_route53_zone" "my_domain" {
-  name = "${local.config.infrastructure.s3.website}."
-}
-
 resource "aws_cloudfront_origin_access_control" "website_origin_access_control" {
   name                              = "website-origin-access-control"
   description                       = "Policy"
@@ -26,6 +21,13 @@ resource "aws_cloudfront_distribution" "s3_distribution" {
 
   aliases = [local.config.infrastructure.s3.website]
 
+  custom_error_response {
+    error_caching_min_ttl = 0
+    error_code            = 403
+    response_code         = 200
+    response_page_path    = "/error"
+  }
+
   default_cache_behavior {
     allowed_methods  = ["GET", "HEAD"]
     cached_methods   = ["GET", "HEAD"]
@@ -39,7 +41,7 @@ resource "aws_cloudfront_distribution" "s3_distribution" {
       }
     }
 
-    viewer_protocol_policy = "redirect-to-https"
+    viewer_protocol_policy = "allow-all"
     min_ttl                = 0
     default_ttl            = 3600
     max_ttl                = 86400
@@ -60,35 +62,3 @@ resource "aws_cloudfront_distribution" "s3_distribution" {
   }
 }
 
-resource "aws_acm_certificate" "cert" {
-  provider          = aws
-  domain_name       = local.config.infrastructure.s3.website
-  validation_method = "DNS"
-
-  lifecycle {
-    create_before_destroy = true
-  }
-}
-
-resource "aws_route53_record" "cert_validation" {
-  for_each = {
-    for dvo in aws_acm_certificate.cert.domain_validation_options :
-    dvo.domain_name => {
-      name   = dvo.resource_record_name
-      type   = dvo.resource_record_type
-      record = dvo.resource_record_value
-    }
-  }
-
-  zone_id = aws_route53_zone.my_domain.zone_id
-  name    = each.value.name
-  type    = each.value.type
-  ttl     = 60
-  records = [each.value.record]
-}
-
-resource "aws_acm_certificate_validation" "cert" {
-  provider                = aws
-  certificate_arn         = aws_acm_certificate.cert.arn
-  validation_record_fqdns = [for r in aws_route53_record.cert_validation : r.fqdn]
-}
