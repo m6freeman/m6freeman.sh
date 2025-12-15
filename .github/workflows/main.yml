@@ -121,23 +121,27 @@ jobs:
             exit 1
           }
 
-      - name: Initalize and Deploy Terraform
-        working-directory: terraform
-        env:
-          BACKEND_BUCKET: ${{ steps.set-config.outputs.BACKEND_BUCKET }}
-          PROJECT_NAME: ${{ steps.set-config.outputs.PROJECT_NAME }}
-          REGION: ${{ steps.set-config.outputs.REGION }}
-          USING_LOCALSTACK: ${{ env.USING_LOCALSTACK }}
-          TERRAFORM_COMMAND: ${{ env.TERRAFORM_COMMAND }}
+      - name: destroy
         run: |
-          if [[ $USING_LOCALSTACK == "true" ]]; then
-            source $VIRTUAL_ENV/bin/activate
-          fi
-          $TERRAFORM_COMMAND init \
-            -backend-config="bucket=${BACKEND_BUCKET}" \
-            -backend-config="key=${PROJECT_NAME}/terraform.tfstate" \
-            -backend-config="region=${REGION}" \
-            -backend-config="encrypt=false"
-          $TERRAFORM_COMMAND apply -auto-approve
-          $TERRAFORM_COMMAND output website_endpoint
+          terraform destroy -auto-approve
+
+#      - name: Initalize and Deploy Terraform
+#        working-directory: terraform
+#        env:
+#          BACKEND_BUCKET: ${{ steps.set-config.outputs.BACKEND_BUCKET }}
+#          PROJECT_NAME: ${{ steps.set-config.outputs.PROJECT_NAME }}
+#          REGION: ${{ steps.set-config.outputs.REGION }}
+#          USING_LOCALSTACK: ${{ env.USING_LOCALSTACK }}
+#          TERRAFORM_COMMAND: ${{ env.TERRAFORM_COMMAND }}
+#        run: |
+#          if [[ $USING_LOCALSTACK == "true" ]]; then
+#            source $VIRTUAL_ENV/bin/activate
+#          fi
+#          $TERRAFORM_COMMAND init \
+#            -backend-config="bucket=${BACKEND_BUCKET}" \
+#            -backend-config="key=${PROJECT_NAME}/terraform.tfstate" \
+#            -backend-config="region=${REGION}" \
+#            -backend-config="encrypt=false"
+#          $TERRAFORM_COMMAND apply -auto-approve
+#          $TERRAFORM_COMMAND output website_endpoint
 
