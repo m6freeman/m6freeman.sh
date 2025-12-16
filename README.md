@@ -11,7 +11,9 @@ With just `curl` in your terminal, you can navigate my website, which primarily 
 ``` bash
 # home page
 curl -s m6freeman.sh
+```
 
+``` bash
 # my full résumé
 curl -s m6freeman.sh | less -r
 ```
@@ -23,13 +25,11 @@ curl -s m6freeman.sh | less -r
 
 ``` cmd
 :: CMD (recommended)
-
 curl -s m6freeman.sh
 ```
 
 ``` powershell
 # Powershell (not recommended)
-
 Invoke-WebRequest -Uri "m6freeman.sh" | Select-Object Content
 ```
 
