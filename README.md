@@ -21,14 +21,16 @@ curl -s m6freeman.sh | less -r
 
 ### Windows
 
+#### CMD (recommended)
+
 ``` cmd
-# CMD, recommended
 
 curl -s m6freeman.sh
 ```
 
+#### Powershell (not recommended)
+
 ``` powershell
-# Powershell, not recommended
 
 Invoke-WebRequest -Uri "m6freeman.sh" | Select-Object Content
 ```
