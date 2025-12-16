@@ -6,16 +6,32 @@ With just `curl` in your terminal, you can navigate my website, which primarily 
 
 ## Examples
 
+### Linux, MacOS
+
 ``` bash
 # home page
-curl -s m6freeman.sh.s3-website-us-east-1.amazonaws.com
+curl -s m6freeman.sh
 
 # my full résumé
-curl -s m6freeman.sh.s3-website-us-east-1.amazonaws.com/resume | less -r
+curl -s m6freeman.sh | less -r
 ```
 
 - `curl`'s `-s` just means `--silent`. `curl`'s progress bar can leave unsightly artifacts, so this is recommended
 - Piping the `/resume` page into `less` or the pager of your choice is recommended in order to start at the top. `less`'s `-r` renders the ANSI characters
+
+### Windows
+
+``` cmd
+# CMD, recommended
+
+curl -s m6freeman.sh
+```
+
+``` powershell
+# Powershell, not recommended
+
+Invoke-WebRequest -Uri "m6freeman.sh" | Select-Object Content
+```
 
 ![welcome page](./img.png)
 
