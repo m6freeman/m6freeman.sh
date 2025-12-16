@@ -22,7 +22,7 @@ curl -s m6freeman.sh | less -r
 ### Windows
 
 ``` cmd
-# CMD (recommended)
+:: CMD (recommended)
 
 curl -s m6freeman.sh
 ```
