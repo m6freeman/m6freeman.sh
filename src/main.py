@@ -23,6 +23,9 @@ import page_renderer
 # - source data from markdown in m6freeman.github.io
 
 
+with open('src/resources/index.md', 'r', encoding='utf-8') as f:
+    full_md: str = f.read()
+
 with open("src/resources/theme.json", "r", encoding="utf-8") as f:
     theme_text: dict[str, str] = json.load(f)
 theme: Theme = Theme(theme_text)
@@ -40,8 +43,8 @@ page_renderer.build(
 
 page_renderer.build(
     Group(
-        Padding(name.build(), (1, 0, 0, 0)),
-        Padding(synopsis.build(), (2, 0, 0, 0)),
+        Padding(name.build(full_md), (1, 0, 0, 0)),
+        Padding(synopsis.build(full_md), (2, 0, 0, 0)),
         Padding(description.build(), (2, 0, 0, 0)),
     ),
     theme,
@@ -58,8 +61,8 @@ page_renderer.build(
 
 page_renderer.build(
     Group(
-        Padding(name.build(), (1, 0, 0, 0)),
-        Padding(synopsis.build(), (2, 0, 0, 0)),
+        Padding(name.build(full_md), (1, 0, 0, 0)),
+        Padding(synopsis.build(full_md), (2, 0, 0, 0)),
         Padding(description.build(), (2, 0, 0, 0)),
         Padding(options.build(), (2, 0, 0, 0)),
         Padding(examples.build(), (2, 0, 0, 0)),
