@@ -26,6 +26,20 @@ jobs:
       - name: Checkout Repository
         uses: actions/checkout@v4
 
+      - name: Checkout m6freeman.github.io index.md
+        uses: actions/checkout@v4
+        with:
+          repository: 'm6freeman/m6freeman.github.io'
+          sparse-checkout: |
+            docs/index.md
+          sparse-checkout-cone-mode: false
+
+      - name: Move index.md to src/resources
+        working-directory: src/resources
+        run: |
+          mv docs/index.md src/resources/
+
+
       - name: Install Dependencies
         run: |
           sudo apt-get update

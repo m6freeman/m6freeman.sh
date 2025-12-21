@@ -20,7 +20,7 @@ import page_renderer
 
 
 # TODO:
-# - route53 stuffs in terraform
+# - source data from markdown in m6freeman.github.io
 
 
 with open("src/resources/theme.json", "r", encoding="utf-8") as f:
@@ -84,4 +84,7 @@ page_renderer.build(
     Group(Padding(web_dev.build(), (1, 0))), theme, "dist/web_dev")
 
 page_renderer.build(
-    Group(Padding(see_also.build("src/resources/contacts.json"), (1, 0))), theme, "dist/see_also")
+    Group(Padding(
+        see_also.build("src/resources/contacts.json"),
+        (1, 0))), theme, "dist/see_also"
+)
