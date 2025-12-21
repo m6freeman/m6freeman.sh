@@ -36,7 +36,6 @@ jobs:
           path: data
 
       - name: Move index.md to src/resources
-        working-directory: src/resources
         run: |
           ls
           ls data
