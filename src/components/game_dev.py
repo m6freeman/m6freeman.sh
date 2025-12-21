@@ -1,3 +1,6 @@
+import re
+from mrkdwn_analysis import MarkdownAnalyzer
+from page_renderer import get_analyzer
 from rich.table import Table
 from rich.text import Text
 from rich.padding import Padding
@@ -5,15 +8,25 @@ from rich.console import Group
 from rich.markdown import Markdown
 
 
-def build() -> Group:
+def build(full_md: str) -> Group:
 
-    lead_programmer: Markdown = Markdown("""
-**Lead Programmer, Owner**
+    game_dev_pattern: str = b'(?s)(###\\s\\*\\*Whale[^*]*\\*\\*.*?\\n.*?)(?=\\n###\\s\\*\\*|$)'
+    game_dev_match: re.match = re.search(
+        game_dev_pattern, full_md.encode())
+    game_dev_md: str = game_dev_match.group(1).decode()
+    game_dev_analyzer = get_analyzer(game_dev_md)
 
-- Developed and published `Android` and `Windows` platform games with `Unity3D`, `C#`, `.NET Framework`, and `Visual Studio`
-- Worked directly alongside UI/UX designers and 3D asset animators.
+    employer: str = [
+        header.get('text')
+        for header in game_dev_analyzer.identify_headers().get('Header')
+        if header.get('level') == 3
+    ][0]
 
-    """)
+    roles_pattern = b'(?<=####\\s)([\\s\\S]*?)(?=\n<br>\\s|$)'
+    roles: list[MarkdownAnalyzer] = [
+        get_analyzer(role.decode()) for role
+        in re.findall(roles_pattern, game_dev_analyzer.text.encode())
+    ]
 
     examples_table: Table = Table(
         title="EXAMPLES", title_justify="left",
@@ -21,21 +34,26 @@ def build() -> Group:
     examples_table.add_column(style="blockquote")
     examples_table.add_column(style="bold blue")
     examples_table.add_column()
-    examples_table.add_row(
-        "2019", "Subtractor", "github.com/m6freeman/subtractor"
-    )
-    examples_table.add_row(
-        "2016", "Hyperlane", "github.com/m6freeman/hyperlane"
-    )
-    examples_table.add_row(
-        "2015", "Porthole", "github.com/m6freeman/porthole"
-    )
+    for row in game_dev_analyzer.identify_tables().get('Table')[0].get('rows'):
+        examples_table.add_row(
+            row[0],
+            re.search(b'\\[([^\\]]+)\\]', row[1].encode()).group(1).decode(),
+            re.search(b'\\[([^\\]]+)\\]', row[2].encode()).group(1).decode(),
+        )
 
     return Group(
         Padding(Text.assemble(
-            ("Whale Fall Studios, San Diego CA ", "bold"),
-            ("2015-2020", "blockquote")
-        ), (0, 0, 0, 0)),
-        Padding(lead_programmer, (1, 0, 0, 2)),
+            (employer.split('*')[2] + " ", "bold"),
+            (employer.split('*')[5], "blockquote")), (0, 0, 0, 0)),
+        *(
+            Padding(
+                Group(
+                    Text(role.identify_paragraphs().get(
+                        'Paragraph')[0], "bold"),
+                    Markdown('\n'.join(role.text.splitlines()[1:]))
+                ),
+                (1, 0, 0, 2))
+            for role in roles
+        ),
         Padding(examples_table, (1, 0, 0, 2))
     )

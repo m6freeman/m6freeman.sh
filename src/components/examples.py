@@ -40,7 +40,7 @@ $ {examples_analyzer.identify_inline_code()[1].get('code')}
         pilot.build(full_md), "\n",
         historical_syntax, "\n",
         ciat.build(full_md), "\n",
-        game_dev.build(), "\n",
+        game_dev.build(full_md), "\n",
         usn.build(), "\n",
         web_dev.build(), "\n",
         hampton.build(), "\n",
