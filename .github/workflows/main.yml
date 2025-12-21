@@ -33,15 +33,16 @@ jobs:
           sparse-checkout: |
             docs/index.md
           sparse-checkout-cone-mode: false
-          path: src/resources
+          path: data
 
       - name: Move index.md to src/resources
         working-directory: src/resources
         run: |
           ls
+          ls data
           ls src
           ls src/resources
-          # mv docs/index.md src/resources/
+          mv data/index.md src/resources/
 
 
       - name: Install Dependencies
