@@ -37,11 +37,7 @@ jobs:
 
       - name: Move index.md to src/resources
         run: |
-          ls
-          ls data
-          ls src
-          ls src/resources
-          mv data/index.md src/resources/
+          mv data/docs/index.md src/resources/
 
 
       - name: Install Dependencies
