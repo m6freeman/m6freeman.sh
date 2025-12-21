@@ -45,7 +45,7 @@ page_renderer.build(
     Group(
         Padding(name.build(full_md), (1, 0, 0, 0)),
         Padding(synopsis.build(full_md), (2, 0, 0, 0)),
-        Padding(description.build(), (2, 0, 0, 0)),
+        Padding(description.build(full_md), (2, 0, 0, 0)),
     ),
     theme,
     "dist/about"
@@ -63,9 +63,9 @@ page_renderer.build(
     Group(
         Padding(name.build(full_md), (1, 0, 0, 0)),
         Padding(synopsis.build(full_md), (2, 0, 0, 0)),
-        Padding(description.build(), (2, 0, 0, 0)),
-        Padding(options.build(), (2, 0, 0, 0)),
-        Padding(examples.build(), (2, 0, 0, 0)),
+        Padding(description.build(full_md), (2, 0, 0, 0)),
+        Padding(options.build(full_md), (2, 0, 0, 0)),
+        Padding(examples.build(full_md), (2, 0, 0, 0)),
         Padding(see_also.build("src/resources/contacts.json"), (2, 0, 0, 0)),
     ),
     theme,
