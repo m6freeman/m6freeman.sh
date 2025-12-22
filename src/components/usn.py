@@ -1,3 +1,6 @@
+import re
+from mrkdwn_analysis import MarkdownAnalyzer
+from page_renderer import get_analyzer
 from rich.table import Table
 from rich.text import Text
 from rich.padding import Padding
@@ -5,17 +8,25 @@ from rich.console import Group
 from rich.markdown import Markdown
 
 
-def build() -> Group:
+def build(full_md: str) -> Group:
 
-    mc3: Markdown = Markdown("""
+    usn_pattern: str = b'(?s)(###\\s\\*\\*United[^*]*\\*\\*.*?\\n.*?)(?=\\n###\\s\\*\\*|$)'
+    usn_match: re.match = re.search(
+        usn_pattern, full_md.encode())
+    usn_md: str = usn_match.group(1).decode()
+    usn_analyzer = get_analyzer(usn_md)
 
-**Mass Communication Specialist 3rd Class (SW)**
+    employer: str = [
+        header.get('text')
+        for header in usn_analyzer.identify_headers().get('Header')
+        if header.get('level') == 3
+    ][0]
 
-- Photographed, filmed, journal/documented, published, and assisted in the coordination of various military operations, events and ceremonies, earning an Admiral's Letter of Commendation for my work during my 2018-19 Western Pacific deployment aboard USS Essex (LHD-2) 
-- Designed publications and filmed/edited videos for military promotional use utilizing `Adobe Photoshop`, `InDesign`, and `Premiere`
-- Secret Clearance eligible
-
-    """)
+    roles_pattern = b'(?<=####\\s)([\\s\\S]*?)(?=\n<br>\\s|$)'
+    roles: list[MarkdownAnalyzer] = [
+        get_analyzer(role.decode()) for role
+        in re.findall(roles_pattern, usn_analyzer.text.encode())
+    ]
 
     examples_table: Table = Table(
         title="EXAMPLES", title_justify="left",
@@ -23,14 +34,25 @@ def build() -> Group:
     examples_table.add_column(style="blockquote")
     examples_table.add_column(style="bold blue")
     examples_table.add_column()
-    examples_table.add_row("2018", "USS Essex Westpac",
-                           "github.com/m6freeman/uss_essex_photos")
+    for row in usn_analyzer.identify_tables().get('Table')[0].get('rows'):
+        examples_table.add_row(
+            row[0],
+            re.search(b'\\[([^\\]]+)\\]', row[1].encode()).group(1).decode(),
+        )
 
     return Group(
         Padding(Text.assemble(
-            ("United States Navy, San Diego CA ", "bold"),
-            ("2015-2019", "blockquote")
-        ), (0, 0, 0, 0)),
-        Padding(mc3, (1, 0, 0, 2)),
+            (employer.split('*')[2] + " ", "bold"),
+            (employer.split('*')[5], "blockquote")), (0, 0, 0, 0)),
+        *(
+            Padding(
+                Group(
+                    Text(role.identify_paragraphs().get(
+                        'Paragraph')[0], "bold"),
+                    Markdown('\n'.join(role.text.splitlines()[1:]))
+                ),
+                (1, 0, 0, 2))
+            for role in roles
+        ),
         Padding(examples_table, (1, 0, 0, 2))
     )

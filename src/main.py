@@ -81,7 +81,7 @@ page_renderer.build(
     Group(Padding(game_dev.build(full_md), (1, 0))), theme, "dist/game_dev")
 
 page_renderer.build(
-    Group(Padding(usn.build(), (1, 0))), theme, "dist/usn")
+    Group(Padding(usn.build(full_md), (1, 0))), theme, "dist/usn")
 
 page_renderer.build(
     Group(Padding(web_dev.build(), (1, 0))), theme, "dist/web_dev")

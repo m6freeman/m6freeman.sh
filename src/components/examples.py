@@ -41,7 +41,7 @@ $ {examples_analyzer.identify_inline_code()[1].get('code')}
         historical_syntax, "\n",
         ciat.build(full_md), "\n",
         game_dev.build(full_md), "\n",
-        usn.build(), "\n",
+        usn.build(full_md), "\n",
         web_dev.build(), "\n",
         hampton.build(), "\n",
     )
