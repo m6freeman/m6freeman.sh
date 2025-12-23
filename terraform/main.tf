@@ -3,7 +3,7 @@ terraform {
 
   backend "s3" {
     bucket  = "m6freeman.sh-terraform-state"
-    key     = "terraform.tfstate"
+    key     = "m6freeman.sh/terraform.tfstate"
     region  = "us-east-1"
     encrypt = true
   }
