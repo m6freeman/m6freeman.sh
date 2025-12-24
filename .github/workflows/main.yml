@@ -76,8 +76,7 @@ jobs:
         env:
           AWS_COMMAND: ${{ env.AWS_COMMAND}}
         run: |
-          $AWS_COMMAND sts get-caller-identity
-
+          $AWS_COMMAND sts get-caller-identity > /dev/null 2>&1
       - name: Build distributable site resources
         env:
           RICH_FORCE_TERMINAL: "1"
