@@ -22,7 +22,8 @@ def get_analyzer(md_string: str) -> MarkdownAnalyzer:
     return analyzer
 
 
-def build(content_panel: Panel, theme: Theme, output_path: str) -> None:
+def build(content_panel: Panel, contact_data: dict[str, str],
+          theme: Theme, output_path: str) -> None:
 
     console: Console = Console(force_terminal=True, theme=theme)
 
@@ -30,7 +31,7 @@ def build(content_panel: Panel, theme: Theme, output_path: str) -> None:
         content_panel,
         box=consts.PANEL_BOX_STYLE,
         border_style="cyan",
-        subtitle="m6freeman@tuta.io - 3322690095 - hjkl@conversations.im",
+        subtitle=" - ".join((v for k, v in contact_data.items())),
         subtitle_align="right",
         title="matthew_freeman(1) - software engineer",
         title_align="left",

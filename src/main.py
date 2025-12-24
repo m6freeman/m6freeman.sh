@@ -15,12 +15,34 @@ from components import web_dev
 from rich.console import Group
 from rich.padding import Padding
 from rich.theme import Theme
+import re
 import json
 import page_renderer
 
 
 # TODO:
 # - source data from markdown in m6freeman.github.io
+# - improve building help page table
+
+
+def get_contact_data(full_md: str) -> dict[str, str]:
+
+    contact_data: dict[str, str] = {}
+    contact_pattern: str = b'(?s)(###\\sContact\\sInformation[^*]*.*?\\n.*?)(?=\\n#+\\s*|$)'
+    contact_match: re.match = re.search(
+        contact_pattern, full_md.encode())
+    contact_md: str = contact_match.group(1).decode()
+    contact_analyzer = page_renderer.get_analyzer(contact_md)
+    table = contact_analyzer.identify_tables().get('Table')[0]
+    contact_type: list[str] = table.get('header')
+    for header, row in zip(contact_type, table.get('rows')[0]):
+        contact_data.update(
+            {
+                header: re.search(
+                    b'\\[([^\\]]+)\\]', row.encode()).group(1).decode()
+            })
+
+    return contact_data
 
 
 with open('src/resources/index.md', 'r', encoding='utf-8') as f:
@@ -30,13 +52,16 @@ with open("src/resources/theme.json", "r", encoding="utf-8") as f:
     theme_text: dict[str, str] = json.load(f)
 theme: Theme = Theme(theme_text)
 
+contact_data: dict[str, str] = get_contact_data(full_md)
+
 page_renderer.build(
     Group(
         Padding(legend.build(), (1, 0, 0, 0)),
         Padding(about_contacts.build(
-            "src/resources/quote_ext_bg.txt"), (1, 0, 0, 0)),
+            contact_data, "src/resources/quote_ext_bg.txt"), (1, 0, 0, 0)),
         Padding(quote.build("src/resources/quote.txt"), (0, 0, 0, 0)),
     ),
+    contact_data,
     theme,
     "dist/index"
 )
@@ -47,6 +72,7 @@ page_renderer.build(
         Padding(synopsis.build(full_md), (2, 0, 0, 0)),
         Padding(description.build(full_md), (2, 0, 0, 0)),
     ),
+    contact_data,
     theme,
     "dist/about"
 )
@@ -55,6 +81,7 @@ page_renderer.build(
     Group(
         Padding(help_page.build(), (1, 0, 0, 0)),
     ),
+    contact_data,
     theme,
     "dist/help"
 )
@@ -66,28 +93,30 @@ page_renderer.build(
         Padding(description.build(full_md), (2, 0, 0, 0)),
         Padding(options.build(full_md), (2, 0, 0, 0)),
         Padding(examples.build(full_md), (2, 0, 0, 0)),
-        Padding(see_also.build("src/resources/contacts.json"), (2, 0, 0, 0)),
+        Padding(see_also.build(full_md), (2, 0, 0, 0)),
     ),
+    contact_data,
     theme,
     "dist/resume"
 )
 
 page_renderer.build(
-    Group(
-        Padding(error.build("src/resources/error.txt"), (1, 0)),
-    ), theme, "dist/error")
+    Group(Padding(error.build("src/resources/error.txt"), (1, 0))),
+    contact_data, theme, "dist/error")
 
 page_renderer.build(
-    Group(Padding(game_dev.build(full_md), (1, 0))), theme, "dist/game_dev")
+    Group(Padding(game_dev.build(full_md), (1, 0))),
+    contact_data, theme, "dist/game_dev")
 
 page_renderer.build(
-    Group(Padding(usn.build(full_md), (1, 0))), theme, "dist/usn")
+    Group(Padding(usn.build(full_md), (1, 0))),
+    contact_data, theme, "dist/usn")
 
 page_renderer.build(
-    Group(Padding(web_dev.build(), (1, 0))), theme, "dist/web_dev")
+    Group(Padding(web_dev.build(full_md), (1, 0))),
+    contact_data, theme, "dist/web_dev")
 
 page_renderer.build(
-    Group(Padding(
-        see_also.build("src/resources/contacts.json"),
-        (1, 0))), theme, "dist/see_also"
+    Group(Padding(see_also.build(full_md), (1, 0))),
+    contact_data, theme, "dist/see_also"
 )

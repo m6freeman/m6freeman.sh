@@ -15,7 +15,7 @@ def build() -> Group:
     legend_table.add_column("", width=16)
     legend_table.add_column("", style="dim italic", justify="right", width=10)
     legend_table.add_row("$ curl", "-s", "m6freeman.sh",
-                         Text("\u25B6  you are here \u25C0", "cyan bold"))
+                         Text("\u25B6 you are here \u25C0", "cyan bold"))
     legend_table.add_row(
         "$ curl", "-s", "m6freeman.sh/about", "a brief summary")
     legend_table.add_row("$ curl", "-s", "m6freeman.sh/help",
