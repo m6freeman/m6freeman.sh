@@ -26,25 +26,6 @@ jobs:
       - name: Checkout Repository
         uses: actions/checkout@v4
 
-      - name: Checkout m6freeman.github.io index.md
-        uses: actions/checkout@v4
-        with:
-          repository: 'm6freeman/m6freeman.github.io'
-          sparse-checkout: |
-            docs/index.md
-          sparse-checkout-cone-mode: false
-          path: data
-
-      - name: Move index.md to src/resources
-        run: |
-          mv data/docs/index.md src/resources/
-
-
-      - name: Install Dependencies
-        run: |
-          sudo apt-get update
-          sudo apt-get install -y util-linux python3 python3-pip unzip curl gnupg jq
-
       - name: Load Shared Configuration
         id: set-config
         working-directory: config
@@ -53,10 +34,35 @@ jobs:
           ENVIRONMENT=$(jq -r '.project.environment' config.json)
           PROJECT_NAME=$(jq -r '.project.name' config.json)
           REGION=$(jq -r '.project.region' config.json)
+          DATA_SOURCE_LOCK=$(jq -r '.project.data.commitLock' config.json)
           echo "BACKEND_BUCKET=$BACKEND_BUCKET" >> $GITHUB_OUTPUT
           echo "ENVIRONMENT=$ENVIRONMENT" >> $GITHUB_OUTPUT
           echo "PROJECT_NAME=$PROJECT_NAME" >> $GITHUB_OUTPUT
           echo "REGION=$REGION" >> $GITHUB_OUTPUT
+          echo "DATA_SOURCE_LOCK=$DATA_SOURCE_LOCK" >> $GITHUB_OUTPUT
+
+      - name: Checkout m6freeman.github.io index.md
+        uses: actions/checkout@v4
+        with:
+          repository: 'm6freeman/m6freeman.github.io'
+          sparse-checkout: |
+            docs/index.md
+          sparse-checkout-cone-mode: false
+          ref: >-
+            ${{ 
+               (steps.set-config.outputs.DATA_SOURCE_LOCK != '' && steps.set-config.outputs.DATA_SOURCE_LOCK) ||
+               github.ref_name
+            }}
+          path: data
+
+      - name: Move index.md to src/resources
+        run: |
+          mv data/docs/index.md src/resources/
+
+      - name: Install Dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y util-linux python3 python3-pip unzip curl gnupg jq
 
       - name: Set up AWS CLI
         env:

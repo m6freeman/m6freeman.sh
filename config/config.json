@@ -2,7 +2,10 @@
   "project": {
     "name": "m6freeman.sh",
     "environment": "dev",
-    "region": "us-east-1"
+    "region": "us-east-1",
+    "data": {
+      "commitLock": ""
+    }
   },
   "infrastructure": {
     "localstack_endpoint": "http:localstack:4566",
