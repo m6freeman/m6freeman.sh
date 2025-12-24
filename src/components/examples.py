@@ -42,6 +42,6 @@ $ {examples_analyzer.identify_inline_code()[1].get('code')}
         ciat.build(full_md), "\n",
         game_dev.build(full_md), "\n",
         usn.build(full_md), "\n",
-        web_dev.build(), "\n",
-        hampton.build(), "\n",
+        web_dev.build(full_md), "\n",
+        hampton.build(full_md), "\n",
     )
