@@ -3,7 +3,7 @@ from rich.console import Group
 from rich.panel import Panel
 from rich.padding import Padding
 from rich.text import Text
-from page_renderer import get_analyzer
+from utilities import get_analyzer
 import rich.box
 
 

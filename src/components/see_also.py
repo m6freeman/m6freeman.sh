@@ -1,6 +1,6 @@
 import re
 import rich.box
-from page_renderer import get_analyzer
+from utilities import get_analyzer
 from rich.console import Group
 from rich.table import Table
 from rich.text import Text

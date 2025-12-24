@@ -15,34 +15,13 @@ from components import web_dev
 from rich.console import Group
 from rich.padding import Padding
 from rich.theme import Theme
-import re
+from utilities import get_contact_data
 import json
 import page_renderer
 
 
 # TODO:
-# - source data from markdown in m6freeman.github.io
-# - improve building help page table
-
-
-def get_contact_data(full_md: str) -> dict[str, str]:
-
-    contact_data: dict[str, str] = {}
-    contact_pattern: str = b'(?s)(###\\sContact\\sInformation[^*]*.*?\\n.*?)(?=\\n#+\\s*|$)'
-    contact_match: re.match = re.search(
-        contact_pattern, full_md.encode())
-    contact_md: str = contact_match.group(1).decode()
-    contact_analyzer = page_renderer.get_analyzer(contact_md)
-    table = contact_analyzer.identify_tables().get('Table')[0]
-    contact_type: list[str] = table.get('header')
-    for header, row in zip(contact_type, table.get('rows')[0]):
-        contact_data.update(
-            {
-                header: re.search(
-                    b'\\[([^\\]]+)\\]', row.encode()).group(1).decode()
-            })
-
-    return contact_data
+# improve building help page table
 
 
 with open('src/resources/index.md', 'r', encoding='utf-8') as f:

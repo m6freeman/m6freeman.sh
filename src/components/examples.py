@@ -8,7 +8,7 @@ from components import hampton
 from components import pilot
 from components import usn
 from components import web_dev
-from page_renderer import get_analyzer
+from utilities import get_analyzer
 
 
 def build(full_md: str) -> Group:

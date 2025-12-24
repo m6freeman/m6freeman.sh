@@ -3,7 +3,7 @@ from rich.console import Group
 from rich.text import Text
 from rich.padding import Padding
 from rich.markdown import Markdown
-from page_renderer import get_analyzer
+from utilities import get_analyzer
 
 
 def build(full_md: str) -> Group:

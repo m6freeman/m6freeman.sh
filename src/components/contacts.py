@@ -1,5 +1,3 @@
-import re
-from page_renderer import get_analyzer
 from resources import consts
 from rich.console import Group
 from rich.panel import Panel

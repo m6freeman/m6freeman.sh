@@ -1,5 +1,5 @@
 import re
-from page_renderer import get_analyzer
+from utilities import get_analyzer
 from rich.text import Text
 from rich.padding import Padding
 from rich.console import Group

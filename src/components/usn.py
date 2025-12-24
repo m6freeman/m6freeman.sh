@@ -1,6 +1,6 @@
 import re
 from mrkdwn_analysis import MarkdownAnalyzer
-from page_renderer import get_analyzer
+from utilities import get_analyzer
 from rich.table import Table
 from rich.text import Text
 from rich.padding import Padding

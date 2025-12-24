@@ -1,25 +1,8 @@
-from mrkdwn_analysis import MarkdownAnalyzer
 from resources import consts
 from rich.console import Console
 from rich.padding import Padding
 from rich.panel import Panel
 from rich.theme import Theme
-from unittest import mock
-import io
-
-
-def get_analyzer(md_string: str) -> MarkdownAnalyzer:
-    dummy_path = "/nonexistent/path/tmp.md"
-    fake_file = io.StringIO(md_string)
-
-    def fake_open(path, *args, **kwargs):
-        fake_file.seek(0)
-        return fake_file
-
-    with mock.patch("builtins.open", new=fake_open):
-        analyzer = MarkdownAnalyzer(file_path=dummy_path)
-
-    return analyzer
 
 
 def build(content_panel: Panel, contact_data: dict[str, str],
