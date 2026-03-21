@@ -8,8 +8,8 @@ on:
 
 env:
   USING_LOCALSTACK: false
-  AWS_COMMAND: "aws"
-  TERRAFORM_COMMAND: "terraform"
+  AWS_CMD: "aws"
+  TF_CMD: "terraform"
 
 jobs:
 
@@ -23,8 +23,10 @@ jobs:
           echo "USING_LOCALSTACK=$([[ $GITHUB_EVENT_NAME == 'workflow_dispatch' ]] && echo "true" || echo "false")" >> $GITHUB_ENV
           echo "Using Localstack: $USING_LOCALSTACK"
 
+
       - name: Checkout Repository
         uses: actions/checkout@v4
+
 
       - name: Load Shared Configuration
         id: set-config
@@ -41,6 +43,7 @@ jobs:
           echo "REGION=$REGION" >> $GITHUB_OUTPUT
           echo "DATA_SOURCE_LOCK=$DATA_SOURCE_LOCK" >> $GITHUB_OUTPUT
 
+
       - name: Checkout m6freeman.github.io index.md
         uses: actions/checkout@v4
         with:
@@ -55,34 +58,40 @@ jobs:
             }}
           path: data
 
+
       - name: Move index.md to src/resources
         run: |
           mv data/docs/index.md src/resources/
+
 
       - name: Install Dependencies
         run: |
           sudo apt-get update
           sudo apt-get install -y util-linux python3 python3-pip unzip curl gnupg jq
 
+
       - name: Set up AWS CLI
         env:
           AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
           AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           AWS_DEFAULT_REGION: ${{ steps.set-config.outputs.REGION }}
-          AWS_COMMAND: ${{ env.AWS_COMMAND}}
+          AWS_CMD: ${{ env.AWS_CMD}}
         run: |
           curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip"
           unzip -q awscliv2.zip
           sudo ./aws/install --update
-          $AWS_COMMAND configure set aws_access_key_id "$AWS_ACCESS_KEY_ID"
-          $AWS_COMMAND configure set aws_secret_access_key "$AWS_SECRET_ACCESS_KEY"
-          $AWS_COMMAND configure set default.region "$AWS_DEFAULT_REGION"
+          $AWS_CMD configure set aws_access_key_id "$AWS_ACCESS_KEY_ID"
+          $AWS_CMD configure set aws_secret_access_key "$AWS_SECRET_ACCESS_KEY"
+          $AWS_CMD configure set default.region "$AWS_DEFAULT_REGION"
+
 
       - name: Validate AWS Credentials
         env:
-          AWS_COMMAND: ${{ env.AWS_COMMAND}}
+          AWS_CMD: ${{ env.AWS_CMD}}
         run: |
-          $AWS_COMMAND sts get-caller-identity > /dev/null 2>&1
+          $AWS_CMD sts get-caller-identity > /dev/null 2>&1
+
+
       - name: Build distributable site resources
         env:
           RICH_FORCE_TERMINAL: "1"
@@ -95,50 +104,56 @@ jobs:
           mkdir dist
           python src/main.py
 
+
       - name: Install awslocal and tflocal
         if: env.USING_LOCALSTACK == 'true'
         run: |
           source $VIRTUAL_ENV/bin/activate
           pip3 install --quiet awscli-local
           pip3 install --quiet terraform-local
-          echo "AWS_COMMAND=awslocal" >> $GITHUB_ENV
-          echo "TERRAFORM_COMMAND=tflocal" >> $GITHUB_ENV
+          echo "AWS_CMD=awslocal" >> $GITHUB_ENV
+          echo "TF_CMD=tflocal" >> $GITHUB_ENV
+
 
       - name: Set up Terraform
         uses: hashicorp/setup-terraform@v3
         with:
           terraform_version: "1.13.5"   
 
+
       - name: Set Terraform Workspace for LocalStack
         if: env.USING_LOCALSTACK == 'true'
         run: |
             echo "TF_WORKSPACE=localstack" >> $GITHUB_ENV
 
+
       - name: Initialize Backend Bucket for LocalStack
         if: env.USING_LOCALSTACK == 'true'
         env:
           BACKEND_BUCKET: ${{ steps.set-config.outputs.BACKEND_BUCKET }}
-          AWS_COMMAND: ${{ env.AWS_COMMAND}}
-          TERRAFORM_COMMAND: ${{ env.TERRAFORM_COMMAND }}
+          AWS_CMD: ${{ env.AWS_CMD}}
+          TF_CMD: ${{ env.TF_CMD }}
         working-directory: terraform/backend
         run: |
           source $VIRTUAL_ENV/bin/activate
-          $AWS_COMMAND s3 ls s3://$BACKEND_BUCKET || {
-            $TERRAFORM_COMMAND init
-            $TERRAFORM_COMMAND apply -auto-approve
+          $AWS_CMD s3 ls s3://$BACKEND_BUCKET || {
+            $TF_CMD init
+            $TF_CMD apply -auto-approve
           }
+
 
       - name: Check for Backend Bucket
         if: env.USING_LOCALSTACK == 'false'
         env:
           BACKEND_BUCKET: ${{ steps.set-config.outputs.BACKEND_BUCKET }}
-          AWS_COMMAND: ${{ env.AWS_COMMAND}}
+          AWS_CMD: ${{ env.AWS_CMD}}
         run: |
           echo "$BACKEND_BUCKET"
-          $AWS_COMMAND s3 ls s3://"$BACKEND_BUCKET" || {
+          $AWS_CMD s3 ls s3://"$BACKEND_BUCKET" || {
             echo "External s3 Backend Bucket not found."
             exit 1
           }
+
 
       - name: Initalize and Deploy Terraform
         working-directory: terraform
@@ -147,15 +162,30 @@ jobs:
           PROJECT_NAME: ${{ steps.set-config.outputs.PROJECT_NAME }}
           REGION: ${{ steps.set-config.outputs.REGION }}
           USING_LOCALSTACK: ${{ env.USING_LOCALSTACK }}
-          TERRAFORM_COMMAND: ${{ env.TERRAFORM_COMMAND }}
+          TF_CMD: ${{ env.TF_CMD }}
         run: |
           if [[ $USING_LOCALSTACK == "true" ]]; then
             source $VIRTUAL_ENV/bin/activate
           fi
-          $TERRAFORM_COMMAND init \
+          $TF_CMD init \
             -backend-config="bucket=${BACKEND_BUCKET}" \
             -backend-config="key=${PROJECT_NAME}/terraform.tfstate" \
             -backend-config="region=${REGION}" \
             -backend-config="encrypt=false"
-          $TERRAFORM_COMMAND apply -auto-approve
+          $TF_CMD apply -auto-approve
 
+
+      - name: Get CloudFront Distribution ID
+        id: cf-dist
+        run: |
+          DIST_ID=$($AWS_CMD cloudfront list-distributions \
+            --query 'DistributionList.Items[0].Id' \
+            --output text)
+          echo "distribution_id=$DIST_ID" >> $GITHUB_OUTPUT
+
+
+      - name: Invalidate CloudFront
+        run: |
+          $AWS_CMD cloudfront create-invalidation \
+            --distribution-id ${{ steps.cf-dist.outputs.distribution_id }} \
+            --paths "/*"
