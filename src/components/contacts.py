@@ -10,7 +10,7 @@ def build(contact_data: dict[str, str]) -> Group:
         border_style="none", box=None, show_header=False)
     contact_table.add_column("", style="cyan", justify="right")
     contact_table.add_column("", style="dim cyan italic")
-    contact_table.add_row("Github:", "github.com/m6freeman")
+    contact_table.add_row("Github", "github.com/m6freeman")
     for k, v in contact_data.items():
         contact_table.add_row(k, v)
 
