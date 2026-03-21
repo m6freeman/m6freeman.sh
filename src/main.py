@@ -21,7 +21,8 @@ import page_renderer
 
 
 # TODO:
-# improve building help page table
+# - improve building help page table
+# - either do more with Theme, or kill it
 
 
 with open('src/resources/index.md', 'r', encoding='utf-8') as f:
