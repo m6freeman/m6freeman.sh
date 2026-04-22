@@ -4,7 +4,7 @@
     "environment": "dev",
     "region": "us-east-1",
     "data": {
-      "commitLock": "6638b910df35446fc6f64aa61afbaf82337b4241"
+      "commitLock": "255baf95c556c512cbd75398803312069d7820df"
     }
   },
   "infrastructure": {
